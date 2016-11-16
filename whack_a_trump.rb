@@ -1,6 +1,6 @@
 require 'gosu'
 
-class WhackARuby < Gosu::Window
+class WhackATrump < Gosu::Window
 	def initialize
 		super(800,600)
 		self.caption = 'Whack the Trump!'
@@ -17,6 +17,7 @@ class WhackARuby < Gosu::Window
 		@font = Gosu::Font.new(30)
 		@score = 0
 		@playing = true
+		@start_time = 0
 	end
 
 	def button_down(id)
@@ -30,6 +31,13 @@ class WhackARuby < Gosu::Window
 					@score -= 1
 				end
 			end
+		else
+			if (id == Gosu::KbSpace)
+				@playing = true
+				@visible = -10
+				@start_time = Gosu.milliseconds
+				@score = 0
+			end
 		end
 	end
 
@@ -40,8 +48,8 @@ class WhackARuby < Gosu::Window
 			@velocity_x *= -1 if @x + @width / 2 > 800 || @x - @width / 2 < 0
 			@velocity_y *= -1 if @y + @height / 2 > 600 || @y - @height /2 < 0
 			@visible -= 1
-			@visible = 30 if @visible < -5 && rand < 0.01
-			@time_left = (100 - (Gosu.milliseconds / 1000))
+			@visible = 30 if @visible < -10 && rand < 0.025
+			@time_left = (5 - ((Gosu.milliseconds - @start_time) / 1000))
 			@playing = false if @time_left < 0
 		end
 	end
@@ -59,16 +67,20 @@ class WhackARuby < Gosu::Window
 		elsif @hit == -1
 			c = Gosu::Color::RED
 		end
-		draw_quad(0,0,c,800,0,c,800,600,c,0,600,c)
+		
+		draw_quad(0, 0, c, 800, 0, c, 800, 600, c, 0, 600, c)
 		@hit = 0
-		@font.draw("Score: " + @score.to_s,680,20,2)
-		@font.draw("Time left: " + @time_left.to_s,20,20,2)
+		@font.draw("Score: " + @score.to_s, 660, 20, 2)
+		@font.draw("Time left: " + @time_left.to_s + "s", 20, 20, 2)
+		
 		unless @playing
-			@font.draw("Game Over", 300, 300, 3)
+			@time_left = 0
+			@font.draw("Game Over", 335, 250, 3)
+			@font.draw("Press the Space Bar to Play Again", 200, 300, 3)
 			@visible = 20
 		end
 	end
 end
 
-window = WhackARuby.new
+window = WhackATrump.new
 window.show
